@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->integer('number');
-            $table->string('description');
-            $table->unsignedBigInteger('client_id');
+            $table->string('client');         
             $table->date('date');
             $table->decimal('total',12,2);               
             $table->timestamps();
-            $table->foreign('client_id')->references('id')->on('clients');
+          
         });
     }
 

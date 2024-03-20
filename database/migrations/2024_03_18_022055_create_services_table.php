@@ -11,18 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('consumptions_types', function (Blueprint $table) {
+        Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('description');
-            $table->decimal('cost');            
-            $table->enum('type',[
-                'Monthly' =>'Monthly',
-                'perUnit' => 'Per Unit',
-                'perMinute' => 'Per Minute',
-                'perLetter' => 'Per Letter'
+            $table->decimal('price',12,2);
+            $table->enum('type', [
+                'Monthly'=> 'Monthly',
+                'perUnit' => 'perUnit',
+                'perMinute' => 'perMinute',
+                'perLetter' => 'perLetter'
             ]);
             $table->timestamps();
-          
         });
     }
 
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('consumptions_types');
+        Schema::dropIfExists('services');
     }
 };

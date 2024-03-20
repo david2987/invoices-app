@@ -1,14 +1,16 @@
 <script setup>
 import NavLink from '@/Components/NavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 </script>
 
 <template>
-<nav class="bg-red-600  dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<nav class="dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700" style="background-color: #ececec;border-color: #e7e7e7;">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
                     <div class="flex justify-between h-16">
-                        <div class="flex">
+                        <div class="flex ">
                             <!-- Logo -->
                             <div class="shrink-0 flex items-center">
                                 <Link :href="route('invoices')">
@@ -19,15 +21,12 @@ import { Link } from '@inertiajs/vue3';
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('invoices')" :active="route().current('invoices')">
+                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex  ">
+                                <NavLink :href="route('invoices')" :active="route().current('invoices')" style="color: rgb(153, 153, 153);" class="text-md" >
                                     <i class="bi bi-file-earmark-ruled"></i> Invoices
-                                </NavLink>
-                                <NavLink :href="route('clients')" :active="route().current('clients')">
-                                    <i class="bi bi-person-fill"></i>   Clients
-                                </NavLink>                              
-                                <NavLink :href="route('consumptionstype')" :active="route().current('comsumptionstype')">
-                                    <i class="bi bi-currency-dollar"></i> Services Cost type
+                                </NavLink>                               
+                                <NavLink :href="route('services')" :active="route().current('services')" style="color: rgb(153, 153, 153);" class="text-md">
+                                    <i class="bi bi-currency-dollar"></i> Services
                                 </NavLink>                              
                             </div>
                         </div>
@@ -55,25 +54,16 @@ import { Link } from '@inertiajs/vue3';
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('invoices')" :active="route().current('invoices')">
                             invoices
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('clients')" :active="route().current('clients')">
-                            clients
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink :href="route('consumptionstype')" :active="route().current('consumptionstype')">
-                            Services Cost type
+                        </ResponsiveNavLink>                       
+                        <ResponsiveNavLink :href="route('services')" :active="route().current('services')">
+                            Services
                         </ResponsiveNavLink>
                     </div>                                    
                 </div>
             </nav>
 
 </template>
-  
-  <script>
-
-  
-
-  </script>
-  
+    
   <style scoped>
     .link{
         color:white

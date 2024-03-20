@@ -4,23 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Consumption;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
-class Invoice extends Model
+class Service extends Model
 {
     use HasFactory;
 
     protected $fillable= [
-        'number' , 'client','price','date','total'
+       "description" , 'price' , 'type'
     ];
-
-    public function Consumption() :HasMany
-    {
-        return $this->hasMany(Consumption::class);
-    }
-
-
-
 }

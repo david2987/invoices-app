@@ -1,38 +1,50 @@
 <?php
 
-use App\Http\Controllers\ClientController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServiceController;
+use App\Models\Service;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
+// // Route::get('/', function () {
+// //     return Inertia::render('Welcome', [
+// //         'canLogin' => Route::has('login'),
+// //         'canRegister' => Route::has('register'),
+// //         'laravelVersion' => Application::VERSION,
+// //         'phpVersion' => PHP_VERSION,
+// //     ]);
+// // });
+Route::get('/', [InvoiceController::class , 'index']);
 // #  Rutas Creadas por mi 
 
-Route::get('/invoices',function(){
-    return Inertia::render('Invoices');
-})->name('invoices');
+//invoices
+Route::post('invoices',[InvoiceController::class , 'store'] );
+Route::patch('invoices', [InvoiceController::class, 'update'])->name('invoices.update');
+Route::delete('invoices', [InvoiceController::class, 'destroy'])->name('invoices.delete');
 
-Route::get('/clients', [ClientController::class, 'index'])->name('clients');
+Route::get('/invoices' , [InvoiceController::class , 'index'])->name('invoices');
+Route::get('/invoices/create' , [InvoiceController::class , 'create'])->name('invoicesCreate');
+Route::get('/invoices/edit/{id}' , [InvoiceController::class , 'edit'])->name('invoicesEdit');
 
+##-----
 
-Route::get('/consumptionstype',function(){
-    return Inertia::render('ConsumptionsType');
-})->name('consumptionstype');
+// Services
+
+Route::post('services',[ServiceController::class , 'store'] );
+Route::patch('services', [ServiceController::class, 'update'])->name('services.update');
+Route::delete('services', [ServiceController::class, 'destroy'])->name('services.delete');
+
+Route::get('/services' , [ServiceController::class , 'index'])->name('services');
+Route::get('/services/create' , [ServiceController::class , 'create'])->name('servicesCreate');
+Route::get('/services/edit/{id}' , [ServiceController::class , 'edit'])->name('servicesEdit');
 
 // # ---
-
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
