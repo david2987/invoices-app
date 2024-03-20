@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-use Faker\Core\Number;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Faker\Factory as Faker;
+
 
 class InvoiceSeeder extends Seeder
 {
@@ -16,15 +14,19 @@ class InvoiceSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($i=1; $i < 20 ; $i++) { 
+        $arrPay = array("cash","check","creditCard","debitCard");
+        $arrState = array('pending','paid');
+        $faker = Faker::create();
+
+        foreach (range(1, 20) as $index) {
             DB::table('invoices')->insert([
-                'number' => rand(1,100),            
-                'client' => Str::random(10),
-                'date' => now(),
-                'total' => rand(1,15000000)
+                'number' => $faker->unique()->numberBetween(1,500000),
+                'client' => $faker->name(),
+                'date' =>   $faker->date(),
+                'total' => rand(0.000001, 100000),
+                'paymentOptions' => 'cash',
+                "state" => 'pending'
             ]);
         }
-        
     }
 }
-

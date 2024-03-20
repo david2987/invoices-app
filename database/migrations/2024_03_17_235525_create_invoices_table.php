@@ -13,10 +13,17 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->integer('number');
-            $table->string('client');         
+            $table->integer('number')->unique();
+            $table->string('client');                     
             $table->date('date');
-            $table->decimal('total',12,2);               
+            $table->decimal('total',18,6);
+            $table->enum('paymentOptions', [
+                "cash" => "cash", "check" => "check" , "creditCard" => "credit card" , "debitCard" => "debit card"
+            ])->nullable(true);               
+            $table->enum('state',[
+                'pending' => 'pending',
+                'paid' => 'paid'
+            ]);
             $table->timestamps();
           
         });

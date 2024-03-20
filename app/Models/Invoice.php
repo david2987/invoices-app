@@ -13,7 +13,7 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable= [
-        'number' , 'client','price','date','total'
+        'number' , 'client','price','date','total','paymentOptions' , 'state'
     ];
 
     public function Consumption() :HasMany

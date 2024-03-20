@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('unit',12);          
             $table->decimal('price',12,2);
             $table->decimal('subtotal',12,2);
+            $table->decimal('period',10);
             $table->timestamps();
 
             $table->foreign('invoice_id')->references('id')->on('invoices');

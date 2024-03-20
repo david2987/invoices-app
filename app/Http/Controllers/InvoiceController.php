@@ -55,6 +55,8 @@ class InvoiceController extends Controller
             'client' => 'required',
             'date'   => 'required',
             'total'  => 'required',
+            'paymentOptions' => 'required',
+            'state' => 'required'
         ]);
         
         
@@ -65,6 +67,8 @@ class InvoiceController extends Controller
             'client' => $request->client,
             'date'   => $request->date,
             'total'  => $request->total,
+            'paymentOptions' => $request->paymentOptions ,
+            'state' => $request->state
         ]);
 
 
@@ -73,7 +77,8 @@ class InvoiceController extends Controller
              "invoice_id" => $request->id,
              "unit" => $request->unit,
              "price" =>$request->price,
-             "subtotal" =>$request->subtotal,              
+             "subtotal" =>$request->subtotal,  
+             "period" => $request->period             
          ]);
 
 
@@ -113,10 +118,14 @@ class InvoiceController extends Controller
             'client' => 'required',
             'date'   => 'required',
             'total'  => 'required',
+            'paymentOptions' => 'required',
+            'state' => 'required'
           ]);
           // Actualizar el usuario en la base de datos
             $id =  $request->all('id');
-            Invoice::where('id',$id )->update($request->all('number','client','date','total'));                   
+            Invoice::where('id',$id )->update(
+                $request->all('number','client','date','total','paymentOptions','state')
+            );                   
              
             // Devolver una respuesta exitosa
             //   return Redirect::to('/invoices/edit/'.$id);

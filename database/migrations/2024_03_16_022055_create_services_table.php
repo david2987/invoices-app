@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('services', function (Blueprint $table) {
             $table->id();
             $table->string('description');
-            $table->decimal('price',12,2);
+            $table->decimal('price',18,6);          
             $table->enum('type', [
                 'Monthly'=> 'Monthly',
                 'perUnit' => 'perUnit',

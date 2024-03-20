@@ -107,7 +107,9 @@ function search() {
                     <th class="px-4 py-2">Number</th>
                     <th class="px-4 py-2">Client</th>
                     <th class="px-4 py-2">Date</th>
+                    <th class="px-4 py-2">State</th>
                     <th class="px-4 py-2">Total</th>                    
+                    <th class="px-4 py-2"></th>
                     <th class="px-4 py-2"></th>
                     <th class="px-4 py-2"></th>
                     <th class="px-4 py-2"></th>
@@ -119,6 +121,8 @@ function search() {
                     <td class="px-4 py-2">{{ invoice.number }}</td>
                     <td class="px-4 py-2">{{ invoice.client }}</td>
                     <td class="px-4 py-2">{{ invoice.date }}</td>
+                    <td class="px-4 py-2 text-green-500" v-if="invoice.state == 'paid' " >{{ invoice.state }}</td>
+                    <td class="px-4 py-2 text-red-500" v-if="invoice.state == 'pending' " >{{ invoice.state }}</td>
                     <td class="px-4 py-2">{{ invoice.total }}</td>                    
                     <td class="px-4 py-2">  
                         <Link  :href="route('invoicesEdit', invoice.id )">
@@ -139,7 +143,13 @@ function search() {
                             <i class="bi bi-file-pdf"></i>
                             Print
                         </button>
-                    </td>                    
+                    </td>      
+                    <td class="px-4 py-2">
+                        <button  @click="showModal(invoice.id)" class="hover:text-gray-500" >
+                            <i class="bi bi-file-pdf"></i>
+                            Paid
+                        </button>
+                    </td>                   
                 </tr>
                 </tbody>
             </table>
