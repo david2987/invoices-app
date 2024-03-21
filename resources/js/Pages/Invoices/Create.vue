@@ -73,8 +73,6 @@
         for (let i = 1; i <= items.value; i++) {
             total += document.getElementById('total' + i ).value            
         }
-        alert(total)
-
         return total
     }
 

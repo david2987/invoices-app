@@ -4,8 +4,7 @@
     import { ref } from 'vue';
     import TextInput from '@/Components/TextInput.vue';    
     import InputLabel from '@/Components/InputLabel.vue';
-    import { FwbToast } from 'flowbite-vue'
-    import { onMounted } from 'vue';
+    import { FwbToast } from 'flowbite-vue'    
 
     const props = defineProps({
     services: {
@@ -51,10 +50,10 @@
 
     // useForm
     const form = useForm({
-        number: props.invoices.number,
-        date:   props.invoices.date,
-        client: props.invoices.client,    
-        total:0
+        number: props.invoices.original[0].number,
+        date:   props.invoices.original[0].date,
+        client: props.invoices.original[0].client,    
+        total:  props.invoices.original[0].total,    
     }); 
 
     // Detail Grid
@@ -68,35 +67,34 @@
             unit:'',
             price:'',
             total:''
-      };
-
-        
+      };   
+              
         rows.value.push(newRow)        
     }
 
-    function saveOldRow(){
-        rows.value = []        
+    function saveOldRow(){              
+        rows.value = []  
         for (let i = 1; i <= items.value; i++) {
             let serviceValue = document.querySelector('#service' + i).value
             let unitValue =   document.getElementById('unit' + i).value
             let priceValue =  document.getElementById('price' + i).value
+            let periodValue = document.getElementById('period' + i).value            
             let totalValue = document.getElementById('total' + i).value
-            let periodValue = document.getElementById('period' + i).value
-
+            
             let row = {
-                item: items.value,                 
-                service: serviceValue,
-                period:unitValue,
-                unit:totalValue,
-                price:priceValue,
-                total : periodValue
-            };
-            console.log(row);
+                "item" : {
+                    id: i,
+                    item:    i,                 
+                    service_id: serviceValue,
+                    period:  periodValue,
+                    unit:    unitValue,
+                    price:   priceValue,    
+                    subtotal:totalValue                
+                }
+            };                 
             rows.value.push(row)
         }    
-     
-
-
+    
     }
 
     function removeRow (item) {           
@@ -122,18 +120,17 @@
         }
     }
 
-    function calculaTotalInvoice() {
-        let total;
-        for (let i = 0; i <= items; i++) {
-            total += document.getElementById('total' + id ).value            
-        }
-
+    function calculaTotalInvoice() {        
+        let total  = 0;
+        for (let i = 1; i <= items.value; i++) {
+            total = total + document.getElementById('total' + i ).value * 1                        
+        }        
         return total
     }
 
     
     const submit = () => {                             
-        for (let i = 1; i <= items.value; i++) {
+        for (let i = 1; i <= items.value; i++) {            
             let serviceValue = document.querySelector('#service' + i).value
             let unitValue =   document.getElementById('unit' + i).value
             let priceValue =  document.getElementById('price' + i).value
@@ -147,9 +144,9 @@
                 "total":totalValue,
                 "period":periodValue
             })                
-        }
-
-        const form =  useForm({
+        }        
+        const form =  useForm({    
+            InvoiceId: props.invoices.original[0].id,        
             client: document.getElementById('client').value,
             date: document.getElementById('date').value,
             number :document.getElementById('number').value,
@@ -157,12 +154,12 @@
             rows : itemsValue.value
         });
         
-                
-        form.post(route('invoices'), {
+            
+        form.patch(route('invoices'), {
         onSuccess: (data) => {            
             mostrarToast.value = true
             setTimeout(()=>{
-                mostrarToast.value = false
+                location.reload();
             },3000)
             form.reset()
         },
@@ -183,6 +180,7 @@
 
 <form class="max-w-6xl mx-auto mt-4"  @submit.prevent="submit">
     
+
     <div> 
         <h1>Update a Invoice</h1>
     </div>
@@ -199,11 +197,12 @@
     <div class="grid gap-3">
 
         <!-- Header -->
-        <div >
+        <div >            
         
             <!-- Number -->
             <div class="relative z-0 w-full mb-5 group mt-5">
                 <InputLabel for="number" value="Number" />
+                     
                 <TextInput
                     id="number"
                     type="number"
@@ -211,7 +210,7 @@
                     v-model="form.number"
                     required
                     autofocus
-                    autocomplete="number"            
+                    autocomplete="number"                        
                 />
             </div>
 
@@ -267,9 +266,9 @@
                     <tr v-for="row in rows" :key="row.item"  class="bg-gray-100" >                                                                                      
                         <td  class="text-center">{{row.item.item?row.item.item:row.item}}</td>                   
                         <td>            
-                            <select @change="onChange($event,row.item.item?row.item.item:row.item)" :id="'service' + (row.item.item?row.item.item:row.item)"  >
+                            <select :value="row.item.service_id" @change="onChange($event,row.item.item?row.item.item:row.item)" :id="'service' + (row.item.item?row.item.item:row.item)"  >
                                 <option selected>Seleccionar un Servicio</option>
-                                <option v-if="services" :selected="row.item.service_id"  v-for="service in services.original" :data="service.price"  :value="service.id" >{{service.description}}</option>
+                                <option v-if="services"   v-for="service in services.original" :data="service.price"  :value="service.id" >{{service.description}}</option>
                             </select>                          
                         </td>
                         <td>                             

@@ -19,6 +19,8 @@ class ConsumptionController extends Controller
         
         return Inertia::render('Consumptions/Consumption', [        
             'consumptions' =>  DB::table('consumptions')
+            ->join('services', 'services.id', '=', 'consumptions.service_id')
+            ->where('consumptions.invoice_id',$id)
             // ->when($id,function($query,$invoiceId){
             //     $query->where('invoice_id' , $invoiceId); 
             // })

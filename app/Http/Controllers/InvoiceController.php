@@ -19,8 +19,8 @@ class InvoiceController extends Controller
 
         return Inertia::render('Invoices', [
             'invoices' => Invoice::when($request->term, function ($query, $term) {
-                $query->where('number', 'LIKE', '%' . $term . '%');
-            })->paginate(),
+                $query->where('number',  $term );
+            })->paginate(10),
             "searched" =>  $request->term
         ]);
     }
@@ -115,7 +115,7 @@ class InvoiceController extends Controller
         return Inertia::render('Invoices/Edit', [
             'invoices' => response($invoices),
             'services' => response($services),
-            'consumptions' => response($consumptions)
+            'consumptions' => response($consumptions),            
         ]);
     }
 
@@ -124,17 +124,45 @@ class InvoiceController extends Controller
      */
     public function update(Request $request)
     {
-        $request->validate([
-            'number' => 'required',
-            'client' => 'required',
-            'date'   => 'required',
-            'total'  => 'required',
-        ]);
-        // Actualizar el factura en la base de datos
-        $id =  $request->all('id');
-        Invoice::where('id', $id)->update(
-            $request->all('number', 'client', 'date', 'total', 'paymentOptions', 'state')
-        );
+        $InvoiceId =  $request->InvoiceId;
+                
+        try {
+
+            $request->validate([
+                'number' => 'required',
+                'client' => 'required',
+                'date'   => 'required',
+                'total'  => 'required',
+            ]);
+                        
+            Invoice::where('id', $InvoiceId)->update(
+                $request->all('number', 'client', 'date', 'total')
+            );
+    
+                $i = 1; // indice
+                foreach ($request->rows as  $row) {
+                                                                          
+                    if($this->validateDetail($row))
+                    {
+                        Consumption::where('invoice_id',$InvoiceId)
+                        ->where("item" , $i)
+                        ->updateOrCreate([
+                            "item" => $i,
+                            "invoice_id" =>  $InvoiceId,
+                            'service_id' => $row['service'],
+                            "unit" =>       $row['unit'],
+                            "price" =>      $row['price'],
+                            "subtotal" =>   $row['total'],
+                            "period" =>     $row['period']                                             
+                        ]);                       
+                        $i++;
+                    }
+                }
+            
+        } catch (\Throwable $error) {
+            return $error;
+        }
+
 
         // Devolver una respuesta exitosa
         //   return Redirect::to('/invoices/edit/'.$id);
