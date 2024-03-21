@@ -81,10 +81,13 @@ The services are:
 
 - PEST Version 2.0
 
-*** Archivos de Testing : **
- - test/Unit/ExamplesTest.php ( Cambiar ) 
- - test/Unit/ExamplesTest.php ( Cambiar ) 
- - test/Unit/ExamplesTest.php ( Cambiar ) 
+- test/Feature/Auth/AuthenticationTest
+- test/Feature/Auth/AuthenticationTest
+- test/Feature/Auth/PasswordConfirmationTest
+- test/Feature/Auth/PasswordResetTest
+- test/Feature/Auth/PasswordUpdateTest
+- test/Feature/Auth/RegistrationTest
+- test/Feature/ProfileTest
 
 ** Seeder utilizados : **
 
@@ -95,7 +98,7 @@ The services are:
     - database/seeders/ConsumptionSeeder.php
 
 ** * Factory Utilizados **
-     - No se utilizaron Factorys
+     - UserFactory
 
 
 

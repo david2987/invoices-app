@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Invoices');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return redirect()->route('invoices');
+})->middleware(['auth', 'verified']);
 
 
 // #  Rutas Creadas por mi 

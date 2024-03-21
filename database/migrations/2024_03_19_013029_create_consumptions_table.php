@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('invoice_id');
             $table->unsignedBigInteger('service_id');
             $table->integer('unit',12);          
-            $table->decimal('price',12,2);
+            $table->decimal('price',18,6);
             $table->decimal('subtotal',12,2);
             $table->decimal('period',10);
             $table->timestamps();
