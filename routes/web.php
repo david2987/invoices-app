@@ -10,9 +10,17 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [InvoiceController::class , 'index']);
-// #  Rutas Creadas por mi 
+Route::get('/', function () {
+    return Inertia::render('Invoices');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
+
+// #  Rutas Creadas por mi 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
 //invoices
 Route::post('invoices',[InvoiceController::class , 'store'] );
 Route::patch('invoices', [InvoiceController::class, 'update'])->name('invoices.update');
@@ -35,18 +43,8 @@ Route::get('/services/create' , [ServiceController::class , 'create'])->name('se
 Route::get('/services/edit/{id}' , [ServiceController::class , 'edit'])->name('servicesEdit');
 // # ---
 
+// Consumptions
 Route::get('/consumptions/{id}' , [ConsumptionController::class , 'index'])->name('consumptions');
-
-
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';
