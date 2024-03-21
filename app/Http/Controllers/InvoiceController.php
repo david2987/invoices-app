@@ -9,37 +9,34 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 
-use Illuminate\Support\Facades\Route;
-
 class InvoiceController extends Controller
 {
-   /**
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-                        
+
         return Inertia::render('Invoices', [
-            'invoices' => Invoice::when($request->term,function($query,$term)
-            {
-                $query->where('number' , 'LIKE','%'.$term.'%');
+            'invoices' => Invoice::when($request->term, function ($query, $term) {
+                $query->where('number', 'LIKE', '%' . $term . '%');
             })->paginate(),
-            "searched" =>  $request->term       
+            "searched" =>  $request->term
         ]);
     }
 
 
-    
+
     /**
      * Show the form for creating a new resource.
      */
     public function create()
-    {                
+    {
 
         // get Services
         $services = Service::all('*');
-        
-        return Inertia::render('Invoices/Create',[
+
+        return Inertia::render('Invoices/Create', [
             'services' => response($services)
         ]);
     }
@@ -49,43 +46,53 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
+
+        try {
+
+            $request->validate([
+                'number' => 'required',
+                'client' => 'required',
+                'date'   => 'required',
+                'total'  => 'required',
+            ]);
+    
+            $Invoice = Invoice::create([
+                'number' => $request->number,
+                'client' => $request->client,
+                'date'   => $request->date,
+                'total'  => $request->total,
+                'paymentOptions' => 'cash',
+                'state' => 'pending'
+            ]);
+    
+            // Fetch the newly created invoice's ID
+            $invoiceId = $Invoice->fresh()->id;
+    
+            if ($invoiceId) {
         
-        $request->validate([
-            'number' => 'required',
-            'client' => 'required',
-            'date'   => 'required',
-            'total'  => 'required',
-            'paymentOptions' => 'required',
-            'state' => 'required'
-        ]);
-        
-        
-        return $request->rows;
+                $i = 1; // indice
+                foreach ($request->rows as $row) {
+                
+                    if($this->validateDetail($row))
+                    {
+                        Consumption::create([
+                            "item" => $i,
+                            "invoice_id" =>  $invoiceId,
+                            'service_id' => $row['service'],
+                            "unit" => $row['unit'],
+                            "price" => $row['price'],
+                            "subtotal" => $row['total'],
+                            "period" => $row['period']
+                        ]);
+                        $i++;
+                    }
+                }
+            }
 
-        $Invoice = Invoice::create([
-            'number' => $request->number,
-            'client' => $request->client,
-            'date'   => $request->date,
-            'total'  => $request->total,
-            'paymentOptions' => $request->paymentOptions ,
-            'state' => $request->state
-        ]);
+        } catch (\Throwable $error) {
+            return $error;
+        }
 
-
-         Consumption::create([
-            "item" => $request->item,
-             "invoice_id" => $request->id,
-             "unit" => $request->unit,
-             "price" =>$request->price,
-             "subtotal" =>$request->subtotal,  
-             "period" => $request->period             
-         ]);
-
-
-
-        return "Guardo Exitosamente";
-
-      
     }
 
     /**
@@ -99,12 +106,16 @@ class InvoiceController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Invoice $invoice , $id = 0)
+    public function edit(Invoice $invoice, $id = 0)
     {
-        
-        $invoices = Invoice::where('id',$id)->get();            
+        $services = Service::all('*');
+        $invoices = Invoice::where('id', $id)->get();
+        $consumptions = Consumption::where('invoice_id', $id)->get();
+
         return Inertia::render('Invoices/Edit', [
-            'invoices' => response($invoices),        
+            'invoices' => response($invoices),
+            'services' => response($services),
+            'consumptions' => response($consumptions)
         ]);
     }
 
@@ -112,24 +123,22 @@ class InvoiceController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request)
-    {       
+    {
         $request->validate([
             'number' => 'required',
             'client' => 'required',
             'date'   => 'required',
             'total'  => 'required',
-            'paymentOptions' => 'required',
-            'state' => 'required'
-          ]);
-          // Actualizar el usuario en la base de datos
-            $id =  $request->all('id');
-            Invoice::where('id',$id )->update(
-                $request->all('number','client','date','total','paymentOptions','state')
-            );                   
-             
-            // Devolver una respuesta exitosa
-            //   return Redirect::to('/invoices/edit/'.$id);
-        
+        ]);
+        // Actualizar el factura en la base de datos
+        $id =  $request->all('id');
+        Invoice::where('id', $id)->update(
+            $request->all('number', 'client', 'date', 'total', 'paymentOptions', 'state')
+        );
+
+        // Devolver una respuesta exitosa
+        //   return Redirect::to('/invoices/edit/'.$id);
+
     }
 
     /**
@@ -139,5 +148,37 @@ class InvoiceController extends Controller
     {
         Invoice::destroy($request->all('idInvoiceDelete'));
         return Redirect::to('/invoices');
+    }
+
+
+    /**
+     * Validate the specified detail.
+     */
+    private function validateDetail($consumptions){
+            
+            foreach ($consumptions as $consumption) {
+
+                if(isset($consumption['unit'])){
+                    return false;
+                }
+
+                if(isset($consumption['service'])){
+                    return false;
+                }
+
+                if(isset($consumption['price'])){
+                    return false;
+                }
+
+                if(isset($consumption['total'])){
+                    return false;
+                }
+
+                if(isset($consumption['period'])){
+                    return false;
+                }
+
+                return true;
+            }
     }
 }

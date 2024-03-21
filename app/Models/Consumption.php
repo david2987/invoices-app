@@ -13,7 +13,7 @@ class Consumption extends Model
     use HasFactory;
 
     protected $fillable = [
-        'item','description','unit','price','period','subtotal'
+        'item','unit','price','period','subtotal',"invoice_id","service_id"
     ];
 
     public function Invoice(): BelongsTo

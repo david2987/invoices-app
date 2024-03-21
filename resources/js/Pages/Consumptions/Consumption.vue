@@ -1,14 +1,13 @@
 <script setup>
+import { ref, watchEffect } from 'vue'
 
-// require('dotenv').config({ path: '@/.env' })
 
 defineProps({
-    items: {
+  consumptions: {
         type: JSON,
     },
         
 })
-import { ref, watchEffect } from 'vue'
 
 const API_URL = `http://localhost:8000/consumptionstype`
 const consumptionstype = ref(null)
@@ -21,9 +20,11 @@ watchEffect(async () => {
 </script>
 
 <template>
+{{ consumptions }}
+
 <div class="item">
-    {{ consumptionstype }}
     <table  >
+    <!-- {{ consumptionstype }}
         <th>Item</th>
         <th>Description</th>
         <th>Unit</th>
@@ -36,7 +37,7 @@ watchEffect(async () => {
             <td>{{ item.unit }}</td>
             <td>{{ item.typeConsumption }}</td>
             <td class="text-center" >$ {{ item.subtotal }}</td>
-        </tr>
+        </tr> -->
     
     
     </table>

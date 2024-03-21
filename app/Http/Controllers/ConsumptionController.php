@@ -4,15 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Consumption;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
+
 
 class ConsumptionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($id)
     {
-        //
+        
+        return Inertia::render('Consumptions/Consumption', [        
+            'consumptions' =>  DB::table('consumptions')
+            // ->when($id,function($query,$invoiceId){
+            //     $query->where('invoice_id' , $invoiceId); 
+            // })
+            // // ->when($request->type,function($query,$type){
+            // //     $query->where('type',$type); 
+            // })
+            ->get()
+            // "searched" =>  $request->term,
+            // "searchType" => $request->type       
+        ]);
+        
     }
 
     /**
@@ -26,9 +43,9 @@ class ConsumptionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store($rows,$invoiceId)
     {
-        //
+       
     }
 
     /**

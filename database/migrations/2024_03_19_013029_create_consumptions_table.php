@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('consumptions', function (Blueprint $table) {
             $table->id()->primary();
-            $table->integer('item');
-            $table->string('description');            
+            $table->integer('item');                   
             $table->unsignedBigInteger('invoice_id');
             $table->unsignedBigInteger('service_id');
             $table->integer('unit',12);          

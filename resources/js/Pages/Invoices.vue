@@ -2,7 +2,6 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3'
-import { FwbButton, FwbModal,FwbInput  } from 'flowbite-vue'
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -50,29 +49,6 @@ function search() {
 
     <AppLayout />
 
-    <fwb-modal v-if="isShowModal" @close="closeModal">
-        <template #header>
-        <div class="flex items-center text-lg">
-            Delete a Invoice 
-        </div>
-        </template>
-        <template #body>
-        <div>
-            Are you sure you want to delete {{ idInvoiceDelete }}?
-        </div>
-        </template>
-        <template #footer>
-        <div class="flex gap-1 text-right">
-            <fwb-button @click="deleteInvoice" color="red">
-                Delete
-            </fwb-button>
-            <fwb-button @click="closeModal" color="alternative">
-            Cancel
-            </fwb-button>
-        </div>
-        </template>
-    </fwb-modal>
-
     <div class="container mx-auto max-w-6xl" >
 
         <div class="p-4">
@@ -80,10 +56,22 @@ function search() {
         </div>
 
 
-        <div class="w-full text-right container mx-auto flex ">   
-            <div>
-                <input type="text" v-model="term" @keyup="search"  placeholder="Search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />
-                
+        <div class="w-full text-right container mx-auto flex gap-4 ">   
+            <div class="text-left">
+                <label>Invoice Number</label>
+                <input type="text" v-model="term" @keyup="search"  placeholder="#" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
+            </div>
+            <div class="text-left">
+                <label>Client</label>
+                <input type="text" v-model="term" @keyup="search"  placeholder="Client" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
+            </div>
+            <div class="text-left">
+                <label>Date From</label>
+                <input type="date" v-model="term" @keyup="search"  placeholder="Date From" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
+            </div>
+            <div class="text-left">
+                <label>Date to</label>
+                <input type="date" v-model="term" @keyup="search"  placeholder="Date to" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
             </div>
             <div>
                 <Link
@@ -123,7 +111,7 @@ function search() {
                     <td class="px-4 py-2">{{ invoice.date }}</td>
                     <td class="px-4 py-2 text-green-500" v-if="invoice.state == 'paid' " >{{ invoice.state }}</td>
                     <td class="px-4 py-2 text-red-500" v-if="invoice.state == 'pending' " >{{ invoice.state }}</td>
-                    <td class="px-4 py-2">{{ invoice.total }}</td>                    
+                    <td class="px-4 py-2"> {{  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(invoice.total)   }}</td>                    
                     <td class="px-4 py-2">  
                         <Link  :href="route('invoicesEdit', invoice.id )">
                         <button  class="hover:text-gray-500" >
@@ -145,10 +133,14 @@ function search() {
                         </button>
                     </td>      
                     <td class="px-4 py-2">
-                        <button  @click="showModal(invoice.id)" class="hover:text-gray-500" >
-                            <i class="bi bi-file-pdf"></i>
-                            Paid
+                        <Link 
+                        :href="route('consumptions', invoice.id)"
+                        >
+                        <button class="hover:text-gray-500" >
+                            <i class="bi bi-eye"></i>
+                            Details
                         </button>
+                        </Link>
                     </td>                   
                 </tr>
                 </tbody>

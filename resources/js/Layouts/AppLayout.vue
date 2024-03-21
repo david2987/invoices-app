@@ -5,7 +5,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 </script>
 
 <template>
-<nav class="dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700" style="background-color: #ececec;border-color: #e7e7e7;">
+<nav class="bg-red-600 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700" style="border-color: #e7e7e7;">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -22,10 +22,10 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex  ">
-                                <NavLink :href="route('invoices')" :active="route().current('invoices')" style="color: rgb(153, 153, 153);" class="text-md" >
+                                <NavLink :href="route('invoices')" :active="route().current('invoices')"  class="text-md text-white" >
                                     <i class="bi bi-file-earmark-ruled"></i> Invoices
                                 </NavLink>                               
-                                <NavLink :href="route('services')" :active="route().current('services')" style="color: rgb(153, 153, 153);" class="text-md">
+                                <NavLink :href="route('services')" :active="route().current('services')"  class="text-md text-white">
                                     <i class="bi bi-currency-dollar"></i> Services
                                 </NavLink>                              
                             </div>

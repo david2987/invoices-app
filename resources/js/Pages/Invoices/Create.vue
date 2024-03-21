@@ -2,9 +2,9 @@
     import AppLayout from '@/Layouts/AppLayout.vue';
     import { useForm } from '@inertiajs/vue3';
     import { ref } from 'vue';
-    import TextInput from '@/Components/TextInput.vue';
-    import InputError from '@/Components/InputError.vue';
+    import TextInput from '@/Components/TextInput.vue';    
     import InputLabel from '@/Components/InputLabel.vue';
+    import { FwbToast } from 'flowbite-vue'
 
      defineProps({
     services: {
@@ -14,17 +14,14 @@
     
 
     // ref    
-    const number = ref(null);
-    const unit = ref(null);
-    const client = ref(null);
-    const total = ref(null);
     const rows =ref([
-        { item: 1, service: '', unit:'',price:'',total:'' }
+        { item: 1, service: '',period : '', unit:'',price:'',total:'' }
       ]);
     const items = ref(1)
     const itemsValue = ref([])
-    let mostrarToast = ref(false)
-    
+    const mostrarToast = ref(false)
+    const mostrarToastError = ref(false)
+
 
     // useForm
     const form = useForm({
@@ -41,6 +38,7 @@
             item: items.value, 
             description: '',
             service: '',
+            period:'',
             unit:'',
             price:'',
             total:''
@@ -54,8 +52,7 @@
     }
 
     function onChange(event,id) {
-         let price =  event.target.options[event.target.selectedIndex].getAttribute('data')
-         let unit =  document.getElementById('unit' + id ).value
+         let price =  event.target.options[event.target.selectedIndex].getAttribute('data')          
          document.getElementById('price' + id ).value = price          
         calcularTotal(id)
     }
@@ -63,38 +60,77 @@
     function calcularTotal(id) {
         let unit =  document.getElementById('unit' + id ).value
         let price = document.getElementById('price' + id ).value 
-        document.getElementById('total' + id ).value = price * unit
+        let period = document.getElementById('period' + id ).value
+
+        if(!period){
+            document.getElementById('total' + id ).value = price * unit
+        }else{
+            document.getElementById('total' + id ).value = price * unit * period
+        }
+    }
+    function calculaTotalInvoice() {
+        let total = 0;
+        for (let i = 1; i <= items.value; i++) {
+            total += document.getElementById('total' + i ).value            
+        }
+        alert(total)
+
+        return total
     }
 
     
     const submit = () => {                             
         for (let i = 1; i <= items.value; i++) {
-                let serviceValue = document.querySelector('#service' + i).value
-                let unitValue =   document.getElementById('unit' + i).value
-                let priceValue =  document.getElementById('price' + i).value
-                let totalValue = document.getElementById('total' + i).value
+            let serviceValue = document.querySelector('#service' + i).value
+            let unitValue =   document.getElementById('unit' + i).value
+            let priceValue =  document.getElementById('price' + i).value
+            let totalValue = document.getElementById('total' + i).value
+            let periodValue = document.getElementById('period' + i).value
 
-                itemsValue.value.push( {
-                    "service":serviceValue,  
-                    "unit":unitValue,
-                    "price":priceValue,
-                    "total":totalValue
-                })                
+            itemsValue.value.push( {
+                "service":serviceValue,  
+                "unit":unitValue,
+                "price":priceValue,
+                "total":totalValue,
+                "period":periodValue
+            })                
         }
 
         const form =  useForm({
             client: document.getElementById('client').value,
             date: document.getElementById('date').value,
             number :document.getElementById('number').value,
-            total: 100,
+            total: calculaTotalInvoice() ,
             rows : itemsValue.value
         });
         
                 
         form.post(route('invoices'), {
-            onSuccess: (res) => console.log(res),
-            onError: (err) => console.log(err)                         
+        onSuccess: (data) => {            
+            mostrarToast.value = true
+            setTimeout(()=>{
+                mostrarToastError.value = false
+                limpiarForm()
+            },3000)
+            form.reset()
+        },
+        onError: (data) =>{
+            mostrarToastError.value = true
+            setTimeout(()=>{
+                mostrarToastError.value = false
+            },3000)
+        }                   
         });
+
+        function limpiarForm() {
+            form.number = '';
+            form.client = '';
+            form.date='';
+            rows =  { item: 1, service: '',period : '', unit:'',price:'',total:'' }
+        }
+
+        
+
     };
 
 
@@ -110,21 +146,14 @@
         <h1>Create Invoice</h1>
     </div>
 
-    <div id="toast-success" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert" v-show="mostrarToast">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-            </svg>
-            <span class="sr-only">Check icon</span>
-        </div>
-        <div class="ms-3 text-sm font-normal">Invoice Save successfully.</div>
-        <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-success" aria-label="Close">
-            <span class="sr-only">Close</span>
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-        </button>
-    </div>
+    
+    <fwb-toast divide type="success" v-show="mostrarToast">
+        Service Save successfully.
+    </fwb-toast>
+
+    <fwb-toast divide type="danger" v-show="mostrarToastError">
+        Error Saving Service  
+    </fwb-toast>
 
     <div class="grid gap-3">
 
@@ -141,7 +170,7 @@
                     v-model="form.number"
                     required
                     autofocus
-                    autocomplete="number"            
+                    autocomplete="number"                            
                 />
             </div>
 
@@ -171,24 +200,10 @@
                     required
                     autofocus
                     autocomplete="date"
-                />
-                
+                />                
             </div>
 
-            <!-- Total -->
-            <!-- <div class="relative z-0 w-full mb-5 group">
-                <InputLabel for="total" value="total" />
-                <TextInput
-                    id="total"
-                    type="number"
-                    class=" block w-full"
-                    v-model="form.total"
-                    required
-                    autofocus
-                    autocomplete="total"
-                />
-                
-            </div> -->
+        
         </div>
 
         <!-- Detail -->
@@ -197,10 +212,10 @@
             <table  class="table-auto w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" >
                 <thead>
                 <tr class="text-xs text-gray-700 uppercase bg-blue-700 dark:bg-gray-700 text-white">
-                    <th class="px-4 py-2">#</th>
-                    <!-- <th class="px-4 py-2">Description</th> -->
+                    <th class="px-4 py-2">#</th>                
                     <th class="px-4 py-2">Service</th>
                     <th class="px-4 py-2">Unit</th>
+                    <th class="px-4 py-2">Period</th>
                     <th class="px-4 py-2">Pirce</th>                    
                     <th class="px-4 py-2">Total</th>                                                          
                     <th class="px-4 py-2"></th>
@@ -219,10 +234,13 @@
                             <input   :id="'unit' + row.item" type="number" @keydown="calcularTotal(row.item)"   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                         </td>
                         <td >                            
+                            <input :id="'period' + row.item" type="number" @keydown="calcularTotal(row.item)"   class=" shadow appearance-none border-0 w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                        </td>
+                        <td >                            
                             <input :id="'price' + row.item" type="text" readonly class=" shadow appearance-none border-0 w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                         </td>
                         <td>                            
-                           $<input type="text" :id="'total' + row.item "  class="border-0">
+                           $<input :id="'total' + row.item" type="text"  readonly class="border-0">
                         </td>
                         <td >
                             <button @click.prevent="removeRow(row.item)" class="bg-transparent" >

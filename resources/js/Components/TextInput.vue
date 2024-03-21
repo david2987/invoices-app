@@ -26,6 +26,8 @@ defineExpose({ focus: () => input.value.focus() });
         v-model="model"
         ref="input"
         min="0"
+        step="any"
+        max="10000000000"
         
     />
 </template>

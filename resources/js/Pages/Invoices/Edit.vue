@@ -1,127 +1,306 @@
-<script setup  >
+<script  setup  >
     import AppLayout from '@/Layouts/AppLayout.vue';
     import { useForm } from '@inertiajs/vue3';
     import { ref } from 'vue';
-    import TextInput from '@/Components/TextInput.vue';
-    import InputError from '@/Components/InputError.vue';
+    import TextInput from '@/Components/TextInput.vue';    
     import InputLabel from '@/Components/InputLabel.vue';
     import { FwbToast } from 'flowbite-vue'
-    
-    defineProps({
+    import { onMounted } from 'vue';
+
+    const props = defineProps({
     services: {
         type: JSON,
-        },    
-    });    
-    const isToast = ref(false)
-
-    // ref    
-    const id = ref(0);
-    const description = ref(null);
-    const price = ref(null);
-    const type = ref(null);
-    let mostrarToast = ref(false)
-    
-
-    const submit = () => {
-        
-        const form = useForm({
-        id: document.getElementById('id').value,
-        description: document.getElementById('description').value,
-        price: document.getElementById('price').value,
-        type: document.getElementById('type').value    
-        });
-        
-        form.patch(route('services.update'), {
-            onFinish: () => showToast()            
-                
+        },
+      invoices:{
+        type : JSON
+      },
+      consumptions:{
+        type : JSON
+      }      
     });
 
- function showToast () {
-  isToast.value = true
-}
 
+    // ref              
+    const rows =ref(getConsumptions());
+    const items = ref( getTotalItem())    
+    const itemsValue  = ref([])
+    const mostrarToast = ref(false)
+    const mostrarToastError = ref(false)
+
+    //get Consumptions
+    function getConsumptions() {
+    return props.consumptions.original.map((item) => {    
+        return {
+        item, // Assuming you want to keep the original item
+        service: item.service,
+        period: item.period,
+        unit: item.unit,
+        price: item.price,
+        total: item.total
+    };
+
+    });
+    }
+
+    function getTotalItem() {
+        return props.consumptions.original.reduce((total, item) => {
+        return total + 1;
+    }, 0);
+    }
+
+
+    // useForm
+    const form = useForm({
+        number: props.invoices.number,
+        date:   props.invoices.date,
+        client: props.invoices.client,    
+        total:0
+    }); 
+
+    // Detail Grid
+    function addRow () {   
+        saveOldRow()
+        items.value = items.value + 1;           
+        const newRow = {
+            item: items.value,             
+            service: '',
+            period:'',
+            unit:'',
+            price:'',
+            total:''
+      };
+
+        
+        rows.value.push(newRow)        
+    }
+
+    function saveOldRow(){
+        rows.value = []        
+        for (let i = 1; i <= items.value; i++) {
+            let serviceValue = document.querySelector('#service' + i).value
+            let unitValue =   document.getElementById('unit' + i).value
+            let priceValue =  document.getElementById('price' + i).value
+            let totalValue = document.getElementById('total' + i).value
+            let periodValue = document.getElementById('period' + i).value
+
+            let row = {
+                item: items.value,                 
+                service: serviceValue,
+                period:unitValue,
+                unit:totalValue,
+                price:priceValue,
+                total : periodValue
+            };
+            console.log(row);
+            rows.value.push(row)
+        }    
+     
+
+
+    }
+
+    function removeRow (item) {           
+        let rowsFiltered = rows.value
+        rows.value = rowsFiltered.filter((rowsFiltered)=> rowsFiltered.item != item )        
+    }
+
+    function onChange(event,id) {            
+         let price =  event.target.options[event.target.selectedIndex].getAttribute('data')              
+         document.getElementById('price' + id ).value = price          
+        calcularTotal(id)
+    }
+
+    function calcularTotal(id) {
+        let unit =  document.getElementById('unit' + id ).value
+        let price = document.getElementById('price' + id ).value 
+        let period = document.getElementById('period' + id ).value
+
+        if(!period){ 
+            document.getElementById('total' + id ).value = price * unit
+        }else{
+            document.getElementById('total' + id ).value = price * unit * period
+        }
+    }
+
+    function calculaTotalInvoice() {
+        let total;
+        for (let i = 0; i <= items; i++) {
+            total += document.getElementById('total' + id ).value            
+        }
+
+        return total
+    }
 
     
-};
+    const submit = () => {                             
+        for (let i = 1; i <= items.value; i++) {
+            let serviceValue = document.querySelector('#service' + i).value
+            let unitValue =   document.getElementById('unit' + i).value
+            let priceValue =  document.getElementById('price' + i).value
+            let totalValue = document.getElementById('total' + i).value
+            let periodValue = document.getElementById('period' + i).value
+
+            itemsValue.value.push( {
+                "service":serviceValue,  
+                "unit":unitValue,
+                "price":priceValue,
+                "total":totalValue,
+                "period":periodValue
+            })                
+        }
+
+        const form =  useForm({
+            client: document.getElementById('client').value,
+            date: document.getElementById('date').value,
+            number :document.getElementById('number').value,
+            total: calculaTotalInvoice(),
+            rows : itemsValue.value
+        });
+        
+                
+        form.post(route('invoices'), {
+        onSuccess: (data) => {            
+            mostrarToast.value = true
+            setTimeout(()=>{
+                mostrarToast.value = false
+            },3000)
+            form.reset()
+        },
+        onError: (data) =>{
+            mostrarToastError.value = true
+            setTimeout(()=>{
+                mostrarToastError.value = false
+            },3000)
+        }                   
+        });
+    };
+
 
 </script>
 <template>
 
 <AppLayout />
 
+<form class="max-w-6xl mx-auto mt-4"  @submit.prevent="submit">
+    
+    <div> 
+        <h1>Update a Invoice</h1>
+    </div>
 
-<form class="max-w-xl mx-auto mt-4"  @submit.prevent="submit" v-for="service in services.original" :key="service.id">
-
-    <fwb-toast v-if="isToast" closable  type="success">
-        Service Updated!
+    
+    <fwb-toast divide type="success" v-show="mostrarToast">
+        Service Save successfully.
     </fwb-toast>
 
-    <div> 
-        <h1>Update Service</h1>        
-    </div>
+    <fwb-toast divide type="danger" v-show="mostrarToastError">
+        Error Saving Service  
+    </fwb-toast>
 
-    <div id="toast-success" class="flex items-center w-full max-w-xs p-4 mb-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert" v-show="mostrarToast">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-            </svg>
-            <span class="sr-only">Check icon</span>
-        </div>
-        <div class="ms-3 text-sm font-normal">Service Save successfully.</div>
-        <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700" data-dismiss-target="#toast-success" aria-label="Close">
-            <span class="sr-only">Close</span>
-            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-            </svg>
-        </button>
-    </div>
+    <div class="grid gap-3">
 
-        <!-- Description -->
-        <div class="relative z-0 w-full mb-5 group mt-5">
-                <input type="hidden" id="id" v-model="service.id">
-
-                <InputLabel for="description" value="Description" />
+        <!-- Header -->
+        <div >
+        
+            <!-- Number -->
+            <div class="relative z-0 w-full mb-5 group mt-5">
+                <InputLabel for="number" value="Number" />
                 <TextInput
-                    id="description"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="service.description"
-                    required
-                    autofocus
-                    autocomplete="description"   
-                        
-                />
-              
-            </div>
-
-            <!-- Price -->
-            <div class="relative z-0 w-full mb-5 group">
-
-                <InputLabel for="price" value="Price" />
-                <TextInput
-                    id="price"
+                    id="number"
                     type="number"
                     class="mt-1 block w-full"
-                    v-model="service.price"
+                    v-model="form.number"
                     required
                     autofocus
-                    autocomplete="price"
+                    autocomplete="number"            
+                />
+            </div>
+
+            <!-- Client -->
+            <div class="relative z-0 w-full mb-5 group">
+                <InputLabel for="client" value="Client" />
+                <TextInput
+                    id="client"
+                    type="text"
+                    class=" block w-full"
+                    v-model="form.client"
+                    required
+                    autofocus
+                    autocomplete="client"
                 />
                 
             </div>
 
-            <!-- Type  -->
-            <div class="relative z-0 w-full mb-5 group">        
-                <label for="type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Service Type</label>
-                <select id="type" v-model="service.type" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                    <option selected>Choose a Type</option>
-                    <option value="Monthly" >Monthly</option>
-                    <option value="perUnit">Per Unit</option>
-                    <option value="perMinute">Per Minute</option>
-                    <option value="perLetter">Per Letter</option>
-                </select>
+            <!-- date -->
+            <div class="relative z-0 w-full mb-5 group">
+                <InputLabel for="date" value="Date" />
+                <TextInput
+                    id="date"
+                    type="date"
+                    class=" block w-full"
+                    v-model="form.date"
+                    required
+                    autofocus
+                    autocomplete="date"
+                />
+                
             </div>
-  
+
+        
+        </div>
+
+        <!-- Detail -->
+        <div class="mt-5">
+            
+            <table  class="table-auto w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400" >
+                <thead>
+                <tr class="text-xs text-gray-700 uppercase bg-blue-700 dark:bg-gray-700 text-white">
+                    <th class="px-4 py-2">#</th>                    
+                    <th class="px-4 py-2">Service</th>
+                    <th class="px-4 py-2">Unit</th>
+                    <th class="px-4 py-2">Period</th>
+                    <th class="px-4 py-2">Pirce</th>                    
+                    <th class="px-4 py-2">Total</th>                                                          
+                    <th class="px-4 py-2"></th>
+                </tr>
+                </thead>
+                <tbody class="py-8">                    
+                    <tr v-for="row in rows" :key="row.item"  class="bg-gray-100" >                                                                                      
+                        <td  class="text-center">{{row.item.item?row.item.item:row.item}}</td>                   
+                        <td>            
+                            <select @change="onChange($event,row.item.item?row.item.item:row.item)" :id="'service' + (row.item.item?row.item.item:row.item)"  >
+                                <option selected>Seleccionar un Servicio</option>
+                                <option v-if="services" :selected="row.item.service_id"  v-for="service in services.original" :data="service.price"  :value="service.id" >{{service.description}}</option>
+                            </select>                          
+                        </td>
+                        <td>                             
+                            <input :value="row.item.unit"   :id="'unit' + (row.item.item?row.item.item:row.item)" type="number" @keydown="calcularTotal(row.item.item?row.item.item:row.item)"   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                        </td>
+                        <td >                            
+                            <input :value="row.item.period" :id="'period' + (row.item.item?row.item.item:row.item)"  type="number" @keydown="calcularTotal(row.item.item?row.item.item:row.item)"   class=" shadow appearance-none border-0 w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                        </td>
+                        <td >                            
+                            <input :value="row.item.price" :id="'price' + (row.item.item?row.item.item:row.item)" type="text" readonly class=" shadow appearance-none border-0 w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                        </td>
+                        <td>                            
+                           $<input  :value="row.item.subtotal":id="'total' + (row.item.item?row.item.item:row.item)" type="text"  class="border-0">
+                        </td>
+                        <td >
+                            <button @click.prevent="removeRow(row.item.item?row.item.item:row.item)" class="bg-transparent" >
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>                        
+                    </tr>
+                </tbody>  
+            </table>
+            <div class="text-center">
+
+                <button  @click.prevent="addRow" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 mt-5">
+                    <i class="bi bi-plus-circle"> Agregar Fila</i>
+                </button>
+            </div>
+            
+        </div>
+    </div>
 
     <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
 </form>
@@ -129,8 +308,3 @@
 
 
 </template>
-
-<script>
-
-
-</script>

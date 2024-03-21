@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\ConsumptionController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
+use App\Models\Consumption;
 use App\Models\Service;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -39,8 +41,11 @@ Route::delete('services', [ServiceController::class, 'destroy'])->name('services
 Route::get('/services' , [ServiceController::class , 'index'])->name('services');
 Route::get('/services/create' , [ServiceController::class , 'create'])->name('servicesCreate');
 Route::get('/services/edit/{id}' , [ServiceController::class , 'edit'])->name('servicesEdit');
-
 // # ---
+
+Route::get('/consumptions/{id}' , [ConsumptionController::class , 'index'])->name('consumptions');
+
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

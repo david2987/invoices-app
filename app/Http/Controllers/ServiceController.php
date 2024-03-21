@@ -6,6 +6,7 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 
 
 class ServiceController extends Controller
@@ -16,12 +17,17 @@ class ServiceController extends Controller
     public function index(Request $request)
     {
             
-        return Inertia::render('Services', [
-            'services' => Service::when($request->term,function($query,$term)
-            {
-                $query->where('description' , 'LIKE','%'.$term.'%');
-            })->paginate(),
-            "searched" =>  $request->term       
+        return Inertia::render('Services', [        
+            'services' =>  DB::table('services')
+            ->when($request->term,function($query,$term){
+                $query->where('description' , 'LIKE','%'.$term.'%'); 
+            })
+            ->when($request->type,function($query,$type){
+                $query->where('type',$type); 
+            })
+            ->get(),
+            "searched" =>  $request->term,
+            "searchType" => $request->type       
         ]);
     }
 
@@ -41,17 +47,16 @@ class ServiceController extends Controller
         
         $request->validate([
             'description' => 'required',
-            'price' => 'required',
+            'price' => 'required|numeric',
             'type' => 'required',
         ]);
 
-        $Service = Service::create([
+        Service::create([
             'description' => $request->description,
             'price' => $request->price,
             'type' => $request->type,
         ]);
 
-      
     }
 
     /**
@@ -79,20 +84,15 @@ class ServiceController extends Controller
     public function update(Request $request)
     {
 
-        
-       
         $request->validate([
             'description' => 'required',
-            'price' => 'required',
+            'price' => 'required|number',
             'type' => 'required'
           ]);
           // Actualizar el usuario en la base de datos
             $id =  $request->all('id');
             Service::where('id',$id )->update($request->all('description','price','type'));                   
-             
-            // Devolver una respuesta exitosa
-            //   return Redirect::to('/services/edit/'.$id);
-        
+                     
     }
 
     /**

@@ -18,22 +18,25 @@ class ServiceSeeder extends Seeder
                 'description' => 'Storage service',
                 'price' => 0.03,
                 'type' => 'perUnit'
-            ],
+            ]);
+
+            DB::table('services')->insert(
             [
                 'description' => 'Proxy service',
                 'price' => 0.03,
                 'type' => 'perMinute'
-            ],
+            ]);
+            DB::table('services')->insert(
             [
                 'description' => 'Speech translation service',
-                'price' => 0,
+                'price' => 0.00003,
                 'type' => 'perLetter'
-            ],
+            ]);
+            DB::table('services')->insert(
             [
                 'description' => 'BackOffice service',
                 'price' => 7,
                 'type' => 'Monthly'
-            ]
-        );
+            ]);        
     }
 }
