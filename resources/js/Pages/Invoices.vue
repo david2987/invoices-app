@@ -10,7 +10,13 @@ const props = defineProps({
     },
     searched:{
         type:Number
-    }    
+    },    
+    from:{
+        type:Date
+    },
+    to:{
+        type:Date
+    }
 });
 
 
@@ -21,6 +27,8 @@ const form = useForm({
 const isShowModal = ref(false)
 const idInvoiceDelete = ref(0)
 const term = ref(props.searched)
+const from = ref(props.from)
+const to = ref(props.to)
 
 function closeModal () {
   isShowModal.value = false
@@ -37,8 +45,8 @@ function deleteInvoice() {
     });
     
 }
-function search() {
-    router.get('/invoices', { term: term.value }, { replace: true })
+function search() {    
+    router.get('/invoices', { term: term.value,from: from.value,to:to.value }, { replace: true })
 }
 
 
@@ -46,6 +54,7 @@ function search() {
 
 <template>
     <Head title="Invoices" />
+
 
     <AppLayout />
 
@@ -60,18 +69,23 @@ function search() {
             <div class="text-left">
                 <label>Invoice Number</label>
                 <input type="text" v-model="term" @keyup="search"  placeholder="#" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
-            </div>
-            <div class="text-left">
-                <label>Client</label>
-                <input type="text" v-model="term" @keyup="search"  placeholder="Client" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
-            </div>
+            </div>            
             <div class="text-left">
                 <label>Date From</label>
-                <input type="date" v-model="term" @keyup="search"  placeholder="Date From" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
+                <input type="date" v-model="from" @focusout="search"  placeholder="Date From" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
             </div>
             <div class="text-left">
                 <label>Date to</label>
-                <input type="date" v-model="term" @keyup="search"  placeholder="Date to" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
+                <input type="date" v-model="to" @focusout="search"  placeholder="Date to" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm" />                
+            </div>
+            <div class="mt-5">
+                <Link 
+                 :href="route('invoices')"
+                 class="rounded-md px-3 py-4 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">            
+                     <button type="button" class="focus:outline-none text-white bg-gray-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                        <i class="bi bi-funnel"></i> 
+                     </button>
+                 </Link>                
             </div>
             <div>
                 <Link
@@ -104,7 +118,7 @@ function search() {
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="invoice in invoices.data" :key="invoice.id" class="border-b border-gray-200 hover:bg-gray-100">
+                <tr v-for="invoice in invoices" :key="invoice.id" class="border-b border-gray-200 hover:bg-gray-100">
                     <td class="px-4 py-2">{{ invoice.id }}</td>
                     <td class="px-4 py-2">{{ invoice.number }}</td>
                     <td class="px-4 py-2">{{ invoice.client }}</td>

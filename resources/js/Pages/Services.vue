@@ -95,8 +95,8 @@ function search() {
             </div>
             <div class="text-left">
                 <label>Type</label>                
-                <select v-model="searchType" @change="search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm">
-                    <option selected value="" >Choose a Type</option>
+                <select v-model="searchType" placeholder="Choose a Type" @change="search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="sm">
+                    <option selected value="" >All type</option>
                     <option value="Monthly" >Monthly</option>
                     <option value="perUnit">Per Unit</option>
                     <option value="perMinute">Per Minute</option>

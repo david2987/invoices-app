@@ -8,6 +8,7 @@ use App\Models\Consumption;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
@@ -16,13 +17,30 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
+        // return Inertia::render('Invoices', [
+        //     'invoices' => Invoice::when($request->term, function ($query, $term) {
+        //         $query->where('number',  $term );
+        //     })->paginate(10),
+        //     "searched" =>  $request->term
+        // ]);
 
-        return Inertia::render('Invoices', [
-            'invoices' => Invoice::when($request->term, function ($query, $term) {
-                $query->where('number',  $term );
-            })->paginate(10),
-            "searched" =>  $request->term
+        return Inertia::render('Invoices', [        
+            'invoices' =>  DB::table('invoices')
+            ->when($request->term,function($query,$term){
+                $query->where('number' , $term); 
+            })
+            ->when($request->from,function($query,$from){
+                $query->where('date','>=' ,$from ); 
+            })
+            ->when($request->to,function($query,$to){
+                $query->where('date','<=',$to); 
+            })
+            ->get(),
+            "searched" =>  $request->term,
+            "from" => $request->from,
+            "to"=> $request->to       
         ]);
+
     }
 
 
