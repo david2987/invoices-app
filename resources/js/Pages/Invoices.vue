@@ -112,7 +112,7 @@ function search() {
                     <th class="px-4 py-2">State</th>
                     <th class="px-4 py-2">Total</th>                    
                     <th class="px-4 py-2"></th>
-                    <th class="px-4 py-2"></th>
+                    
                     <th class="px-4 py-2"></th>
                     <th class="px-4 py-2"></th>
                 </tr>
@@ -139,13 +139,7 @@ function search() {
                             <i class="bi bi-trash"></i> 
                             Delete
                         </button>
-                    </td>         
-                    <td class="px-4 py-2">
-                        <button  @click="showModal(invoice.id)" class="hover:text-gray-500" >
-                            <i class="bi bi-file-pdf"></i>
-                            Print
-                        </button>
-                    </td>      
+                    </td>                             
                     <td class="px-4 py-2">
                         <Link 
                         :href="route('consumptions', invoice.id)"

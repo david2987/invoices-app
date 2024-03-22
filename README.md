@@ -134,8 +134,8 @@ The services are:
 
     4 - Ingresar con usuario y contraseña 
 
-        Usuario : test@example.com
-        password : 
+        Usuario : admin@admin.com
+        password : admin123
 
 
 
