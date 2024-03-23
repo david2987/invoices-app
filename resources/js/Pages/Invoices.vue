@@ -58,7 +58,6 @@ function search() {
 
     <AppLayout />
 
-    
     <fwb-modal v-if="isShowModal" @close="closeModal">
         <template #header>
         <div class="flex items-center text-lg">
@@ -133,7 +132,7 @@ function search() {
                     <th class="px-4 py-2">Number</th>
                     <th class="px-4 py-2">Client</th>
                     <th class="px-4 py-2">Date</th>
-                    <th class="px-4 py-2">State</th>
+                    <th class="px-4 py-2">Cons.</th>
                     <th class="px-4 py-2">Total</th>                    
                     <th class="px-4 py-2"></th>
                     
@@ -146,9 +145,8 @@ function search() {
                     <td class="px-4 py-2">{{ invoice.id }}</td>
                     <td class="px-4 py-2">{{ invoice.number }}</td>
                     <td class="px-4 py-2">{{ invoice.client }}</td>
-                    <td class="px-4 py-2">{{ invoice.date }}</td>
-                    <td class="px-4 py-2 text-green-500" v-if="invoice.state == 'paid' " >{{ invoice.state }}</td>
-                    <td class="px-4 py-2 text-red-500" v-if="invoice.state == 'pending' " >{{ invoice.state }}</td>
+                    <td class="px-4 py-2">{{ invoice.date }}</td>                    
+                    <td class="px-4 py-2 text-blue-500" >{{ invoice.consumptioncount }}</td>
                     <td class="px-4 py-2"> {{  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(invoice.total)   }}</td>                    
                     <td class="px-4 py-2">  
                         <Link  :href="route('invoicesEdit', invoice.id )">

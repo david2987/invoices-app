@@ -48,7 +48,7 @@ defineProps({
               </thead>
               <tbody>
               <tr v-for="consumption in consumptions" :key="consumption.id" class="border-b border-gray-200 hover:bg-gray-100">
-                  <td class="px-4 py-2">{{ consumption.id }}</td>
+                  <td class="px-4 py-2">{{ consumption.item }}</td>
                   <td class="px-4 py-2">{{ consumption.description }}</td>
                   <td class="px-4 py-2">{{  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(consumption.price)  }}</td>
                   <td class="px-4 py-2">{{ consumption.unit }}</td>                                                     

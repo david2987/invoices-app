@@ -20,7 +20,7 @@ class InvoiceController extends Controller
     {
 
         return Inertia::render('Invoices', [
-            'invoices' =>  DB::table('invoices')
+            'invoices' =>  DB::table('invoices')                
                 ->when($request->term, function ($query, $term) {
                     $query->where('number', $term);
                 })
@@ -30,6 +30,7 @@ class InvoiceController extends Controller
                 ->when($request->to, function ($query, $to) {
                     $query->where('date', '<=', $to);
                 })
+                ->select('invoices.*', DB::raw('(select count(*) from consumptions where invoice_id = invoices.id) as consumptionCount'))
                 ->get(),
             "searched" =>  $request->term,
             "from" => $request->from,
@@ -96,7 +97,7 @@ class InvoiceController extends Controller
                             "period" => $row['period']
                         ]);
                         $i++;
-                    }else{
+                    } else {
                         throw new Exception('Error En Valores de la grilla');
                     }
                 }
@@ -146,21 +147,21 @@ class InvoiceController extends Controller
             $i = 1; // index
 
             // Clean Consumptions
-            DB::table('consumptions')->where('invoice_id',$InvoiceId)->delete();
+            DB::table('consumptions')->where('invoice_id', $InvoiceId)->delete();
 
             foreach ($request->rows as  $row) {
 
                 if ($this->validateDetail($row)) {
                     Consumption::where('invoice_id', $InvoiceId)
-                    ->where("item", $i)
-                    ->create([
-                        "item" => $i,
-                        "invoice_id" =>  $InvoiceId,
-                        'service_id' => $row['service'],
-                        "unit" =>       $row['unit'],
-                        "price" =>      $row['price'],
-                        "subtotal" =>   $row['total'],
-                        "period" =>     $row['period']
+                        ->where("item", $i)
+                        ->create([
+                            "item" => $i,
+                            "invoice_id" =>  $InvoiceId,
+                            'service_id' => $row['service'],
+                            "unit" =>       $row['unit'],
+                            "price" =>      $row['price'],
+                            "subtotal" =>   $row['total'],
+                            "period" =>     $row['period']
                         ]);
                     $i++;
                 }
@@ -176,7 +177,7 @@ class InvoiceController extends Controller
     public function destroy(Request $request)
     {
         // Clean Consumptions
-        DB::table('consumptions')->where('invoice_id',$request->idInvoiceDelete)->delete();
+        DB::table('consumptions')->where('invoice_id', $request->idInvoiceDelete)->delete();
 
         // delete invoice
         Invoice::destroy($request->all('idInvoiceDelete'));
@@ -191,8 +192,6 @@ class InvoiceController extends Controller
     {
 
         foreach ($consumptions as $consumption) {
-
-            
             if (isset($consumption['unit'])) {
                 return false;
             }
