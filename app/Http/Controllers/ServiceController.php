@@ -45,11 +45,13 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         
+    try{  
         $request->validate([
             'description' => 'required',
-            'price' => 'required|numeric',
+            'price' => 'required|decimal:0,99999',
             'type' => 'required',
         ]);
+                
 
         Service::create([
             'description' => $request->description,
@@ -57,6 +59,9 @@ class ServiceController extends Controller
             'type' => $request->type,
         ]);
 
+    } catch (\Throwable $error) {
+        return $error;
+    }   
     }
 
     /**
@@ -84,15 +89,19 @@ class ServiceController extends Controller
     public function update(Request $request)
     {
 
-        $request->validate([
+    try{
+         $request->validate([
             'description' => 'required',
-            'price' => 'required|number',
+            'price' => 'required|decimal:0,99999',
             'type' => 'required'
           ]);
+
           // Actualizar el usuario en la base de datos
             $id =  $request->all('id');
             Service::where('id',$id )->update($request->all('description','price','type'));                   
-                     
+        } catch (\Throwable $error) {
+            return $error;
+        }     
     }
 
     /**
@@ -100,6 +109,10 @@ class ServiceController extends Controller
      */
     public function destroy(Request $request)
     {
+        // Clean Consumptions with this service
+        DB::table('consumptions')->where('service_id',$request->idServiceDelete)->delete();
+
+
         Service::destroy($request->all('idServiceDelete'));
         return Redirect::to('/services');
     }

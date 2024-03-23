@@ -268,7 +268,7 @@
                         <td>            
                             <select :value="row.item.service_id" @change="onChange($event,row.item.item?row.item.item:row.item)" :id="'service' + (row.item.item?row.item.item:row.item)"  >
                                 <option selected>Seleccionar un Servicio</option>
-                                <option v-if="services"   v-for="service in services.original" :data="service.price"  :value="service.id" >{{service.description}}</option>
+                                <option v-if="services"  v-for="service in services.original" :data="service.price"  :value="service.id" >{{service.description}}</option>
                             </select>                          
                         </td>
                         <td>                             

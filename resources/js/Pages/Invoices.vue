@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { FwbButton, FwbModal } from 'flowbite-vue'
 import { router } from '@inertiajs/vue3'
 import { ref } from 'vue'
 
@@ -39,7 +40,7 @@ function showModal (id) {
 }
 
 function deleteInvoice() {
-    form.idInvoiceDelete = idInvoiceDelete
+    form.idInvoiceDelete = idInvoiceDelete.value
     form.delete(route('invoices.delete'), {
         onFinish: () => isShowModal.value = false
     });
@@ -55,8 +56,31 @@ function search() {
 <template>
     <Head title="Invoices" />
 
-
     <AppLayout />
+
+    
+    <fwb-modal v-if="isShowModal" @close="closeModal">
+        <template #header>
+        <div class="flex items-center text-lg">
+            Delete a Service 
+        </div>
+        </template>
+        <template #body>
+        <div>
+            Are you sure you want to delete? 
+        </div>
+        </template>
+        <template #footer>
+        <div class="flex gap-1 text-right">
+            <fwb-button @click="deleteInvoice" color="red">
+                Delete
+            </fwb-button>
+            <fwb-button @click="closeModal" color="alternative">
+            Cancel
+            </fwb-button>
+        </div>
+        </template>
+    </fwb-modal>
 
     <div class="container mx-auto max-w-6xl" >
 
@@ -135,7 +159,7 @@ function search() {
                     </Link>
                     </td>
                     <td class="px-4 py-2">
-                        <button  @click="showModal(invoice.id)" class="hover:text-gray-500" >
+                        <button @click="showModal(invoice.id)" class="hover:text-gray-500">
                             <i class="bi bi-trash"></i> 
                             Delete
                         </button>

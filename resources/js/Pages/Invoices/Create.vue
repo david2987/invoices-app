@@ -108,8 +108,8 @@
             mostrarToast.value = true
             setTimeout(()=>{
                 mostrarToastError.value = false
-                limpiarForm()
-            },3000)
+                location.reload();                
+            },1000)
             form.reset()
         },
         onError: (data) =>{
@@ -120,13 +120,7 @@
         }                   
         });
 
-        function limpiarForm() {
-            form.number = '';
-            form.client = '';
-            form.date='';
-            rows =  { item: 1, service: '',period : '', unit:'',price:'',total:'' }
-        }
-
+    
         
 
     };

@@ -5,7 +5,7 @@ import { ref } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3'
 
-
+// Props
 const props =  defineProps({
     services: {
         type: JSON,
@@ -19,9 +19,10 @@ const props =  defineProps({
 
 });
 
+
+// Definition
 const term = ref(props.searched)
 const searchType = ref(props.searchType)
-
 const form = useForm({
     idServiceDelete: '',   
 });
@@ -29,6 +30,7 @@ const form = useForm({
 const isShowModal = ref(false)
 const idServiceDelete = ref(0)
 
+// Modal Function
 function closeModal () {
   isShowModal.value = false
 }
@@ -37,7 +39,7 @@ function showModal (id) {
   isShowModal.value = true
 }
 
-
+// Delete function
 function deleteService() {
     form.idServiceDelete = idServiceDelete
     form.delete(route('services.delete'), {
@@ -45,6 +47,7 @@ function deleteService() {
     });    
 }
 
+// Search Function
 function search() {
     router.get('/services', { term: term.value , type: searchType.value }, { replace: true })
 }
